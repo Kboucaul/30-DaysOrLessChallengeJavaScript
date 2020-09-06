@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Scoped CSS Variables and JS</title>
+</head>
+<body>
+  <h2>Update CSS Variables with <span class='hl'>JS</span></h2>
+
+  <div class="controls">
+    <label for="spacing">Spacing:</label>
+    <input id="spacing" type="range" name="spacing" min="10" max="200" value="10" data-sizing="px">
+
+    <label for="blur">Blur:</label>
+    <input id="blur" type="range" name="blur" min="0" max="25" value="10" data-sizing="px">
+
+    <label for="base">Base Color</label>
+    <input id="base" type="color" name="base" value="#ffc600">
+  </div>
+
+  <img src="https://source.unsplash.com/7bwQXzbF6KE/800x500">
+
+  <style>
+
+    /*
+      misc styles, nothing to do with CSS variables
+    */
+    /*
+    **  Variables CSS
+    */
+    :root {
+      --base    : #ffc600;
+      --spacing : 10px;
+      --blur    : 10px;  
+    }
+
+    span {
+      /*
+      **  Couleur du span.
+      **  Ici on applique notre variable
+      **  qui changera en javascript.
+      */
+      color: var(--base);
+    }
+
+    img {
+      /*
+      **  -Padding de l'image
+      **  -Couleur de fond
+      **  (visible grace au padding)
+      **  -Le filtre (ici le flou)
+      */
+      padding: var(--spacing);
+      background: var(--base);
+      filter: blur(var(--blur));
+    }
+
+    body {
+      text-align: center;
+      background: #193549;
+      color: white;
+      font-family: 'helvetica neue', sans-serif;
+      font-weight: 100;
+      font-size: 50px;
+    }
+
+    .controls {
+      margin-bottom: 50px;
+    }
+
+    input {
+      width: 100px;
+    }
+  </style>
+
+  <script>
+
+    const vSpacing = document.querySelector("#spacing");
+    const vBlur    = document.querySelector("#blur");
+    const vBase    = document.querySelector("#base");
+
+    //Changement quand on fait un click
+    //Ne se declenche qu'une fois (a chaque relachement du click)
+    vSpacing.addEventListener('change', handleUpdate);
+    vBlur.addEventListener('change', handleUpdate);
+    vBase.addEventListener('change', handleUpdate);
+    //Changement quand on deplace la souris sur le curseur
+    //N'agit pas comme un click, c'est smooth et donc fais valeur par valeur
+    vSpacing.addEventListener('mousemove', handleUpdate);
+    vBlur.addEventListener('mousemove', handleUpdate);
+    vBase.addEventListener('mousemove', handleUpdate);
+
+    function handleUpdate()
+    {
+      /*  On recupere le suffixe (ex : px)
+      **  Ici this est l'element appelé
+      **  /!\ Le || ici est pour la couleur
+      **  qui n'a pas de suffixe 
+      */
+      const suffix = this.dataset.sizing || "";
+      
+      /*
+      **  On modifie notre variable
+      **  1/ Ici this est notre element html ex: spacing
+      **  2/ On set notre variable de style a la valeur
+      **  transmise par l'input.
+      **
+      **  Ex: on est sur spacing
+      **    donc this est l'input spacing
+      **    donc on a un suffix (=px)
+      **    donc this.name = "spacing"
+      **    donc this.value = la valaeur de l'input ex 100.
+      **    ==> On set la valeur a 100
+      */
+      document.documentElement.style.setProperty(`--${this.name}`, this.value + suffix);
+    }
+  </script>
+
+</body>
+</html>
