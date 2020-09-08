@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Type Ahead 👀</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <form class="search-form">
+    <input type="text" class="search" placeholder="City or State">
+    <ul class="suggestions">
+      <li>Filter for a city</li>
+      <li>or a state</li>
+    </ul>
+  </form>
+<script>
+const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
+
+/*
+**  On crée un tableau vide
+*/
+let cities = [];
+
+/*
+**  On recupere une promesse avec fetch
+**  On utilise donc .then
+**  On ne connait pas le type de data
+**  On sait que c'est du JSON
+**  On met les datas dans le tableau city
+*/
+
+fetch(endpoint)
+  .then(blob => blob.json()
+  //Retourne une autre promesse
+  .then(data => cities = data)
+);
+
+/*
+**  On filtre notre tableau en fonction du mot
+**  rentré dans le form
+*/
+function findMatches(wordToMatch, cities)
+{
+  return cities.filter(place => {
+  //On verifie que ca match soit avec une ville soit avec un etat
+
+  //  On cree une expression reguliere
+  //  1 param => ce que l'on recherche
+  //  2 parma les flags ici g et i pour global et insensitive
+  //  Ex: regex = "/Paris/gi";
+  const regex = new RegExp(wordToMatch, 'gi');
+    //On verifie si ca match avec la ville ou l'etat (true) ou rien (false)
+    return (place.city.match(regex) || place.state.match(regex));
+  });
+}
+
+function displayMatches() {
+  const matchArray = findMatches(this.value, cities);
+ 
+  /*
+  **  On boucle sur le tableau
+  */
+  const html = matchArray.map(place => {
+    form = new Intl.NumberFormat('fr-FR');
+    const regex = new RegExp(this.value, 'gi');
+    const cityName = place.city.replace(regex, `<span class="h1">${this.value}</span>`);
+    const stateName = place.state.replace(regex, `<span class="h1">${this.value}</span>`);
+    return `
+      <li>
+       <span class="name">${cityName}, ${place.state}</span>
+       <span class="population">${form.format(place.population)} habitants</span>
+      </li>`;
+  }).join('');
+  /*
+  **  On ajoute dans l'element suggestion le html crée a partir
+  **  des villes filtrées. 
+  */
+  suggestions.innerHTML = html;
+}
+/*
+**  On recupere l'input
+*/ 
+const searchInput = document.querySelector('.search');
+const suggestions = document.querySelector('.suggestions');
+
+/*
+**  On ecoute l'evenement
+*/
+
+searchInput.addEventListener('change', displayMatches);
+//Afiche les resultat quand on tappe une touche (actualisé en temps réel)
+searchInput.addEventListener('keyup', displayMatches);
+
+
+</script>
+</body>
+</html>
