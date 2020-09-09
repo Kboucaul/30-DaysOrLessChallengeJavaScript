@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>HTML5 Canvas</title>
+</head>
+<body>
+<canvas id="draw" width="800" height="800"></canvas>
+
+<script>
+
+//  1/-La premiere chose a faire est de recupere ce canvas
+const canvas = document.querySelector('#draw');
+//  2/-Puis récupere le context (ici 2d)
+const ctx = canvas.getContext('2d');
+
+/*  3/-On veut que le canvas prenne toute la fenetre
+**     Par défault il est a 800px par 800px
+**     Ici on recupere les tailles grace a window.
+*/
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+/*
+**  strokeStyle definit la couleur a utiliser pour
+**  dessiner les lignes autour des formes.
+*/
+ctx.strokeStyle = '#BADA55';
+
+/*
+**  lineJoin détermine la forme à utiliser pour joindre deux segments de
+**  ligne à leur intersection
+*/
+ctx.lineJoin = "round";
+
+/*
+**  lineCap : détermine la façon dont les extrémités de chaque ligne sont
+**  dessinées.
+*/
+ctx.lineCap = 'round';
+
+
+//ctx.globalCompositeOperation = "multiply";
+
+/*
+**  Dessine que quand on maintient le click.
+**  C'est un flag qui dit "hé je dessine car tu click"
+**  ou bien "arrete de dessiner, tu as relaché".
+*/
+let isDrawing = false; 
+
+/*
+**  Couleur
+*/
+
+let hue = 0;
+//On augmente l'epaisseur du trait
+let direction = true;
+/*
+**  On a besoin de coordonnées pour se deplacer/dessiner.
+**  Une ligne  abesoin d'un début et d'une fin.
+*/
+let lastX = 0;
+let lastY = 0;
+
+
+/*
+**  Fonction appelé quand je bouge ma souris en cliquant (=dessiner)  
+*/
+function draw(event)
+{
+  /* 
+  **  Si on est pas en train de dessiner
+  **  dessiner (maintenir click + bouger)
+  **  On return
+  */
+  if(!isDrawing)
+    return;
+  else
+  //On est en train de dessiner
+  {
+    //Ici on gere la couleur avec hue et hsl
+    // Cf hsl
+    ctx.strokeStyle = `hsl(${hue}, 100%, 50%)`;
+    /*
+    **  Epaisseur du trait.
+    */
+    ctx.beginPath();
+    //  On dessine d'où...
+    ctx.moveTo(lastX, lastY);
+    //  ...a où
+    ctx.lineTo(event.offsetX, event.offsetY);
+    ctx.stroke();
+    //On modifie last X et last Y
+    //Qui evoluent et deviennent le point d'arrivée.
+    lastX = event.offsetX;
+    lastY = event.offsetY;
+    /*
+    **  On change progressivement la couleur(degradé)
+    */
+    hue++;
+    //On reset quand il a fait le tour (360)
+    if (hue >= 360)
+      hue = 0;
+    if (ctx.lineWidth >= 100 || ctx.lineWidth <= 1)
+    {
+      direction = !direction;
+    }
+    if (direction)
+      ctx.lineWidth++;
+    else
+      ctx.lineWidth--;
+  }
+}
+
+//  0n écoute le mouseMove sur le canvas
+canvas.addEventListener('mousemove', draw);
+
+/*
+**  On ecoute l'evenement click souris
+**  => On met isDrawing a true car on est en
+**  train de dessiner.
+*/
+canvas.addEventListener('mousedown', (event) => {
+  isDrawing = true;
+   /*
+   ** Initialise le debut du trait a l'endroit du curseur.
+   */
+    lastX = event.offsetX;
+    lastY = event.offsetY;
+});
+
+/*
+**  On ecoute l'evnemet click souris (relevé)
+**  => On met isDrawing a false car on ne dessine
+**  plus.
+*/
+canvas.addEventListener('mouseup', () => {
+  isDrawing = false;
+});
+
+//Quand on est plus dans le canvas ^^
+canvas.addEventListener('mouseout', () => {
+  isDrawing = false;
+});
+
+</script>
+
+<style>
+  html, body {
+    margin: 0;
+  }
+</style>
+
+</body>
+</html>
